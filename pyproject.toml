@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "olx_scraper"
+version = "0.0.1"
+description = "Scrape olx for ad listings"
+authors = ["Akash NP <akashnp1998@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+packages = [{include = "olx_scraper"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+selenium = "^4.8.2"
+python-decouple = "^3.8"
+webdriver-manager = "^3.8.5"
+beautifulsoup4 = "^4.11.2"
+fake-useragent = "^1.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
