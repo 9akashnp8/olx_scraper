@@ -36,3 +36,8 @@ def extract_kms_year(listing):
         kms_driven = km_year[1].split()[0].replace(",", "")
         return kms_driven, model_year
     return "", ""
+
+def extract_city(location: str) -> str:
+    burst_location = location.split(", ")
+    city = burst_location[1]
+    return city
