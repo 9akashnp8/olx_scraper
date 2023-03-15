@@ -3,6 +3,7 @@ to do
 """
 import csv
 from bs4 import BeautifulSoup
+from fake_useragent import UserAgent
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
@@ -14,8 +15,9 @@ from selenium.common.exceptions import (
 )
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from typing import List
 from webdriver_manager.chrome import ChromeDriverManager
-from fake_useragent import UserAgent
+
 
 from .utils import (
     extract_string_from_listing,
@@ -24,8 +26,17 @@ from .utils import (
 )
 
 class Scraper():
-    
-    def _load_page_source(self, input_url):
+    """
+    The main class containting all the scraping logic. Contains two methods:
+
+    - .scrape(input_url): returns a list of list of scraped data for given <input_url>
+    - .scrape_to_csv(input_url, file_name): scrapes given <input_url> and writes to csv
+        name as per <file_name>, stored at root dir
+    """
+    def _load_page_source(self, input_url: str) -> str:
+        """
+        load all the listings for given input_url using selenium.
+        """
         service = Service(executable_path=ChromeDriverManager().install())
         chrome_options = Options()
         ua = UserAgent()
@@ -51,7 +62,11 @@ class Scraper():
                 continue
         return driver.page_source
 
-    def _scrape_page_source(self, page_source):
+    def _scrape_page_source(self, page_source: str) -> List[List[str]]:
+        """
+        give a html page source, scrape for listing details and store
+        as list of lists
+        """
         soup = BeautifulSoup(page_source, 'html.parser')
         car_listings_ul = soup.find("ul", attrs={"data-aut-id": "itemsList"})
         listings = car_listings_ul.find_all("li", attrs={"data-aut-id": "itemBox"})
@@ -74,7 +89,11 @@ class Scraper():
         
         return data
 
-    def _write_parsed_to_csv(self, data, file_name):
+    def _write_parsed_to_csv(self, data: List[List[str]], file_name: str) -> None:
+        """
+        given list of lists, write it to a .csv for the given file name.
+        note: file_name should not have extension
+        """
         with open(f'{file_name}.csv', 'w', newline='', encoding="utf-8") as file: 
             writer = csv.writer(file)
             headers = ['Ad ID','Price','Model Year', 'KMS Driven', 'Ad Title', 'Ad Location', 'Ad Link']
@@ -82,19 +101,20 @@ class Scraper():
             for row in data:
                 writer.writerow(row)
 
-    def scrape(self, input_url):
+    def scrape(self, input_url: str) -> List[List[str]]:
         """
-        returns a python list of list containing the data, this can be used to either
-        write to a csv or generation of a pandas dataframe for further analysis
+        scrapes given <input_url> and returns a python list of list containing the data,
+        this can be used to either write to a csv or generation of a pandas dataframe
+        for further analysis
         """
         page_source = self._load_page_source(input_url)
         scraped_data = self._scrape_page_source(page_source)
         return scraped_data
     
-    def scrape_to_csv(self, input_url, file_name):
+    def scrape_to_csv(self, input_url: str, file_name: str) -> None:
         """
-        writes list of lists to csv file located at root dir with filename specified.
-        note: file extension not required.
+        scrapes data for given <input_url> to csv file located at root dir with
+        <file_name> specified. note: file extension not required.
         """
         scraped_data = self.scrape(input_url=input_url)
         output_csv = self._write_parsed_to_csv(data=scraped_data, file_name=file_name)
