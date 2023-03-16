@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "olx_scraper"
-version = "0.0.1"
+version = "0.0.2"
 description = "Scrape olx for ad listings"
 authors = ["Akash NP <akashnp1998@gmail.com>"]
 license = "MIT"
